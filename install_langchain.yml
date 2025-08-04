@@ -1,0 +1,43 @@
+---
+
+- name: Set virtual env path
+  ansible.builtin.set_fact:
+    venv_path: "{{ ansible_env.HOME }}/venv/langchain-venv"
+
+- name: Create a virtual environment for langchain using python{{ upgrade_python3 }}
+  ansible.builtin.command: python{{ upgrade_python3 }} -m venv {{ venv_path }}
+  args:
+    creates: "{{ venv_path }}/bin/activate"
+  become: false
+
+# Sometimes venvs created with newer Python need pip updated
+- name: Upgrade pip inside virtualenv
+  ansible.builtin.pip:
+    virtualenv: "{{ venv_path }}"
+    name:
+      - pip
+      - setuptools
+    state: latest
+
+# As long as the venv has been created (above), specifying virtualenv and pip will ensure using
+#   python that creates this venv
+- name: Install required Python packages inside virtual env (including LangChain)
+  ansible.builtin.pip:
+    virtualenv: "{{ venv_path }}"
+    name: "{{ item }}"
+    state: present
+  loop: "{{ pip_install_tools }}"
+
+# Verify LangChain installed version
+- name: Verify LangChain installation
+  ansible.builtin.shell: |
+    source {{ venv_path }}/bin/activate
+    python3 -c "import langchain; print('LangChain version:', langchain.__version__)"
+  args:
+    executable: /bin/bash
+  register: langchain_check
+
+- name: Show LangChain version
+  ansible.builtin.debug:
+    var: langchain_check.stdout
+
