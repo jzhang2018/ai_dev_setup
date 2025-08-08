@@ -9,6 +9,6 @@
       ansible.builtin.include_tasks: pre_requisites.yml
 
     - name: Install LangChain
-      ansible.builtin.include_tasks: install_langchain.yml
+      ansible.builtin.include_tasks: install_agent_framework.yml
 
 

@@ -41,3 +41,42 @@
     state: present
   loop: "{{ dnf_install_tools }}"
 
+# ----------------------------- Install ngrok --------------------------- #
+- name: Download ngrok zip
+  ansible.builtin.get_url:
+    url: "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-linux-amd64.zip"
+    dest: "/tmp/ngrok.zip"
+    mode: '0644'
+  become: true
+
+- name: Unzip ngrok binary
+  ansible.builtin.unarchive:
+    src: "/tmp/ngrok.zip"
+    dest: "/tmp"
+    remote_src: true
+  become: true
+
+- name: Move ngrok to /usr/local/bin
+  ansible.builtin.copy:
+    src: "/tmp/ngrok"
+    dest: "/usr/local/bin/ngrok"
+    remote_src: true
+    mode: '0755'
+  become: true
+  
+- name: Verify ngrok is installed
+  ansible.builtin.command: "/usr/local/bin/ngrok version"
+  register: ngrok_version
+  changed_when: false
+
+- name: Print ngrok version
+  ansible.builtin.debug:
+    msg: "{{ ngrok_version.stdout }}"
+
+# - name: Add ngrok authtoken
+#   var ngrok_authtoken: ""  
+#   when: ngrok_authtoken != ""
+#   ansible.builtin.command: "/usr/local/bin/ngrok config add-authtoken {{ ngrok_authtoken }}"
+#   environment:
+#     HOME: "/root"
+

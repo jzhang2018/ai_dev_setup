@@ -2,9 +2,10 @@
 
 - name: Set virtual env path
   ansible.builtin.set_fact:
-    venv_path: "{{ ansible_env.HOME }}/venv/langchain-venv"
+    # venv_path: "{{ ansible_env.HOME }}/venv/langchain-venv"
+    venv_path: "{{ ansible_env.HOME }}/venv/fastmcp-venv"
 
-- name: Create a virtual environment for langchain using python{{ upgrade_python3 }}
+- name: Create a virtual environment using python{{ upgrade_python3 }}
   ansible.builtin.command: python{{ upgrade_python3 }} -m venv {{ venv_path }}
   args:
     creates: "{{ venv_path }}/bin/activate"
@@ -28,16 +29,16 @@
     state: present
   loop: "{{ pip_install_tools }}"
 
-# Verify LangChain installed version
-- name: Verify LangChain installation
-  ansible.builtin.shell: |
-    source {{ venv_path }}/bin/activate
-    python3 -c "import langchain; print('LangChain version:', langchain.__version__)"
-  args:
-    executable: /bin/bash
-  register: langchain_check
+# Verify agent framework installed version
+# - name: Verify installation
+#   ansible.builtin.shell: |
+#     source {{ venv_path }}/bin/activate
+#     python3 -c "import langchain; print('LangChain version:', langchain.__version__)"
+#   args:
+#     executable: /bin/bash
+#   register: langchain_check
 
-- name: Show LangChain version
-  ansible.builtin.debug:
-    var: langchain_check.stdout
+# - name: Show LangChain version
+#   ansible.builtin.debug:
+#     var: langchain_check.stdout
 
